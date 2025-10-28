@@ -1,0 +1,39 @@
+name: ascii_inventory_managmement
+
+services:
+  postgres:
+    image: postgres:17.6
+    container_name: ascii_inventory_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: $(POSTGRES_PASSWORD)
+      POSTGRES_DB: ascii_inventory
+    ports:
+      - "5432:5432"
+    volumes:
+      - ascii_inventory_postgres:/var/lib/postgresql/data
+    networks:
+      - ascii_inventory_network
+
+  nextjs_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ascii_inventory_app
+    restart: always
+    env_file:
+      - .env.local
+    ports:
+      - "3000:3000"
+    networks:
+      - vdi_network
+    depends_on:
+      - postgres
+
+volumes:
+  ascii_inventory_postgres:
+
+networks:
+  ascii_inventory_network:
+    driver: bridge
