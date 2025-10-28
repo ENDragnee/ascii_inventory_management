@@ -27,7 +27,7 @@ services:
     ports:
       - "3000:3000"
     networks:
-      - vdi_network
+      - ascii_inventory_network
     depends_on:
       - postgres
 
