@@ -9,26 +9,94 @@ datasource db {
 }
 
 model User {
-  id              String        @id @default(cuid())
-  firstName       String
-  middleName      String?
-  lastName        String
-  password        String
-  role            Role          @default(RESTURANT_CASHIER)
-  phoneNumber     String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                      String                  @id @default(cuid())
+  firstName               String
+  middleName              String?
+  lastName                String
+  password                String
+  role                    Role                    @default(RESTURANT_CASHIER)
+  phoneNumber             String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+
+  // Relations for ProductIssueVoucher
+  validatedIssueVouchers  ProductIssueVoucher[]   @relation("ValidatedIssueVouchers")
+  receivedIssueVouchers   ProductIssueVoucher[]   @relation("ReceivedIssueVouchers")
+  issuedIssueVouchers     ProductIssueVoucher[]   @relation("IssuedIssueVouchers")
+
+  // Relations for GoodReceiveVoucher
+  validatedReceiveVouchers GoodReceiveVoucher[]    @relation("ValidatedReceiveVouchers")
+  receivedReceiveVouchers  GoodReceiveVoucher[]    @relation("ReceivedReceiveVouchers")
+  issuedReceiveVouchers    GoodReceiveVoucher[]    @relation("IssuedReceiveVouchers")
+
+  // Relations for GoodsReceiptNote
+  validatedReceiptNotes   GoodsReceiptNote[]      @relation("ValidatedReceiptNotes")
+  receivedReceiptNotes    GoodsReceiptNote[]      @relation("ReceivedReceiptNotes")
+  issuedReceiptNotes      GoodsReceiptNote[]      @relation("IssuedReceiptNotes")
 }
 
 model Product {
-  id              String        @id @default(cuid())
-  name            String
-  description     String?
-  price           Float
-  stockQuantity   Int
-  measurementUnit MeasurementUnit @default(PIECE)
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id                  String                @id @default(cuid())
+  name                String
+  description         String?
+  price               Float
+  stockQuantity       Int
+  measurementUnit     MeasurementUnit       @default(PIECE)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  ProductIssueVoucher ProductIssueVoucher[]
+  GoodReceiveVoucher  GoodReceiveVoucher[]
+  GoodsReceiptNote    GoodsReceiptNote[]
+}
+
+model ProductIssueVoucher {
+  id            String   @id @default(cuid())
+  productId     String
+  validatorId   String
+  quantity      Int
+  addressedTo   String
+  address       String
+  deliveredBy   String
+  receivedById  String
+  reason        String
+  issuedById    String
+  issuedAt      DateTime @default(now())
+  product       Product  @relation(fields: [productId], references: [id])
+  validatorUser User     @relation("ValidatedIssueVouchers", fields: [validatorId], references: [id])
+  receivedUser  User     @relation("ReceivedIssueVouchers", fields: [receivedById], references: [id])
+  issuedUser    User     @relation("IssuedIssueVouchers", fields: [issuedById], references: [id])
+}
+
+model GoodReceiveVoucher {
+  id           String   @id @default(cuid())
+  productId    String
+  quantity     Int
+  validatorId  String
+  receivedById String
+  deliveredBy  String
+  reason       String
+  issuedById   String
+  issuedAt     DateTime @default(now())
+  product      Product  @relation(fields: [productId], references: [id])
+  validatorUser User    @relation("ValidatedReceiveVouchers", fields: [validatorId], references: [id])
+  receivedUser  User    @relation("ReceivedReceiveVouchers", fields: [receivedById], references: [id])
+  issuedUser    User    @relation("IssuedReceiveVouchers", fields: [issuedById], references: [id])
+}
+
+model GoodsReceiptNote {
+  id           String   @id @default(cuid())
+  productId    String
+  quantity     Int
+  validatorId  String
+  receivedById String
+  deliveredBy  String
+  reason       String
+  issuedById   String
+  issuedAt     DateTime @default(now())
+  product      Product  @relation(fields: [productId], references: [id])
+  validatorUser User    @relation("ValidatedReceiptNotes", fields: [validatorId], references: [id])
+  receivedUser  User    @relation("ReceivedReceiptNotes", fields: [receivedById], references: [id])
+  issuedUser    User    @relation("IssuedReceiptNotes", fields: [issuedById], references: [id])
 }
 
 enum Role {
